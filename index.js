@@ -11,22 +11,11 @@ var globalDefaults = {
 };
 
 function makeExpr(prefixes) {
-    var parts = [];
-    for (var key in prefixes) {
-        if (prefixes.hasOwnProperty(key)) {
-            parts.push(key);
-        }
-    }
-    var expr = '^('+parts.join('|')+'):([^\s]+)';
-    //console.log('makeExpr', expr);
-    return new RegExp(expr, 'i');
+    return new RegExp('^\\s*('+Object.keys(prefixes).join('|')+'):([^\\s]+)\\s*', 'i');
 }
 
-var prefixExpr = makeExpr(globalDefaults.prefixes);
-
-function prefix(pattern, prefixes, expr) {
-    var matches = expr.exec(pattern);
-    //console.log('prefix', pattern, prefixes, matches);
+function prefix(pattern, prefixes) {
+    var matches = pattern.match(makeExpr(prefixes));
     if (matches) {
         var prefixed = prefixes[matches[1]];
         var relPath = matches[2];
@@ -42,14 +31,11 @@ function prefix(pattern, prefixes, expr) {
 
 module.exports.defaults = function(options) {
     globalDefaults = setDefaults(options, globalDefaults);
-    //console.log('global defaults set to', globalDefaults);
-    prefixExpr = makeExpr(globalDefaults.prefixes);
 };
 
 module.exports.expand = function(pattern) {
     var cb;
     var options = globalDefaults;
-    var expr = prefixExpr;
 
     // Allow an optional number of arguments & optional callback
     var args = Array.prototype.slice.call(arguments);
@@ -66,10 +52,9 @@ module.exports.expand = function(pattern) {
     }
 
     options = setDefaults(options, globalDefaults);
-    expr = makeExpr(options.prefixes);
 
     return new Promise(function(resolve, reject) {
-        var prefixed = prefix(pattern, options.prefixes, expr);
+        var prefixed = prefix(pattern, options.prefixes);
         var paths = prefixed.length > 1 ? '{'+prefixed.join(',')+'}' : prefixed[0];
         glob(paths, options.glob, function(err, files) {
             if (err) {
