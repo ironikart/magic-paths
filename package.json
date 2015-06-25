@@ -1,0 +1,25 @@
+{
+  "name": "magic-paths",
+  "version": "0.0.1",
+  "description": "\"Magic path\" resolutions using preset prefixes and globbing",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "keywords": [
+    "node",
+    "path",
+    "glob"
+  ],
+  "author": "Anthony Barnes",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^2.9.30",
+    "glob": "^5.0.10",
+    "lodash.defaults": "^3.1.1"
+  },
+  "devDependencies": {
+    "chai": "^3.0.0",
+    "mocha": "^2.2.5"
+  }
+}
