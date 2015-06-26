@@ -14,7 +14,7 @@ function makeExpr(prefixes) {
     return new RegExp('^\\s*('+Object.keys(prefixes).join('|')+'):([^\\s]+)\\s*', 'i');
 }
 
-function prefix(pattern, prefixes) {
+var prefix = module.exports.prefix = function(pattern, prefixes) {
     var matches = pattern.match(makeExpr(prefixes));
     if (matches) {
         var prefixed = prefixes[matches[1]];
@@ -27,7 +27,7 @@ function prefix(pattern, prefixes) {
         });
     }
     return [pattern];
-}
+};
 
 module.exports.defaults = function(options) {
     globalDefaults = setDefaults(options, globalDefaults);
