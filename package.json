@@ -15,8 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^2.9.30",
-    "glob": "^5.0.10",
-    "lodash.defaults": "^3.1.1"
+    "glob": "^5.0.10"
   },
   "devDependencies": {
     "chai": "^3.0.0",
