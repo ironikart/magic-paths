@@ -9,38 +9,19 @@ Instead of this: `some/deeply/nested/folder/*.*` you can set a prefix and refere
 ```javascript
 var magic = require('magic-paths');
 
-// Setting global defaults
-magic.defaults({
+var options = {
     prefixes: {
-        // Single prefix
-        'single': 'path/to/files/'
-
-        // Pass an array for multiples
-        'multi': [
-            'test/fixtures/modules',
-            'test/fixtures/alt_modules'
-        ]
-    },
-    // Pass options to glob
-    glob: {}
-});
+        rel_fixture: 'test/fixtures'
+    }
+};
 
 // Fetch files (callback style)
-magic.expand('rel_fixture:*.html', function(err, files) {
+magic.expand('rel_fixture:*.html', options, function(err, files) {
     // ...
 });
 
 // Fetch files (promise style)
-magic.expand('rel_fixture:*.html').then(function(files) {
+magic.expand('rel_fixture:*.html', options).then(function(files) {
     // ...
 }).catch(function(err){})
-
-// Custom config (does not replace global defaults)
-magic.expand('custom:*.html', {
-    prefixes: {
-        custom: 'path/to/custom'
-    }
-}, function(err, files) {
-    // ...
-});
 ```
