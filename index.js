@@ -8,7 +8,7 @@ function makeExpr(prefixes) {
     return new RegExp('^\\s*('+Object.keys(prefixes).join('|')+'):([^\\s]+)\\s*', 'i');
 }
 
-var prefix = module.exports.prefix = function(pattern, prefixes) {
+function _resolvePrefix(pattern, prefixes) {
     var matches = pattern.match(makeExpr(prefixes));
     if (matches) {
         var prefixed = prefixes[matches[1]];
@@ -20,7 +20,20 @@ var prefix = module.exports.prefix = function(pattern, prefixes) {
             return path.join(prefixPath, relPath);
         });
     }
-    return [pattern];
+    return pattern;
+}
+
+var prefix = module.exports.prefix = function(patterns, prefixes) {
+    var prefixed;
+    if (Array.isArray(patterns)) {
+        prefixed = patterns.map(function(pattern) {
+            return _resolvePrefix(pattern, prefixes);
+        });
+    } else {
+        prefixed = [].concat(_resolvePrefix(patterns, prefixes));
+    }
+    
+    return prefixed;
 };
 
 module.exports.expand = function (pattern, options) {
