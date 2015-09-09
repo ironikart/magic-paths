@@ -1,8 +1,9 @@
 'use strict';
 var glob = require('glob');
 var path = require('path');
-var merge = require('deep-extend');
 var Promise = require('bluebird');
+
+var globCache = {};
 
 function makeExpr(prefixes) {
     return new RegExp('^\\s*('+Object.keys(prefixes).join('|')+'):([^\\s]+)\\s*', 'i');
@@ -32,35 +33,34 @@ var prefix = module.exports.prefix = function(patterns, prefixes) {
     } else {
         prefixed = [].concat(_resolvePrefix(patterns, prefixes));
     }
-    
     return prefixed;
 };
 
 module.exports.expand = function (pattern, options) {
     var args = Array.prototype.slice.call(arguments);
     var cb = args.length === 3 ? args.pop() : function(){};
-
-    options = merge({
-        prefixes: {
-            cwd: process.cwd()
-        }
-    }, options);
-
     return new Promise(function(resolve, reject) {
-        var prefixed = prefix(pattern, options.prefixes);
-        var paths = prefixed.length > 1 ? '{'+prefixed.join(',')+'}' : prefixed[0];
-        glob(paths, options.glob, function(err, files) {
-            if (err) {
-                reject(err);
-            }
-            files = files.map(function(file) {
-                if (!path.isAbsolute(file)) {
-                    file = path.resolve(process.cwd(), file);
+        // Glob cache is required here - resolving this each time is expensive
+        if (globCache.hasOwnProperty(pattern)) {
+            resolve(globCache[pattern]);
+            cb(null, globCache[pattern]);
+        } else {
+            var prefixed = prefix(pattern, options.prefixes);
+            var paths = prefixed.length > 1 ? '{'+prefixed.join(',')+'}' : prefixed[0];
+            glob(paths, options.glob, function(err, files) {
+                if (err) {
+                    reject(err);
                 }
-                return file;
+                files = files.map(function(file) {
+                    if (!path.isAbsolute(file)) {
+                        file = path.resolve(process.cwd(), file);
+                    }
+                    return file;
+                });
+                globCache[pattern] = files.slice();
+                resolve(files);
+                cb(err, files);
             });
-            resolve(files);
-            cb(err, files);
-        });
+        }
     });
 };
