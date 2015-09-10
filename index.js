@@ -49,7 +49,6 @@ module.exports.expand = function (pattern, options) {
         } else {
             var prefixed = prefix(pattern, options.prefixes);
             var paths = prefixed.length > 1 ? '{'+prefixed.join(',')+'}' : prefixed[0];
-            console.log('resolving glob', paths);
             glob(paths, options.glob, function(err, files) {
                 if (err) {
                     reject(err);
