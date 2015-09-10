@@ -1,6 +1,7 @@
 'use strict';
 var glob = require('glob');
 var path = require('path');
+var merge = require('deep-extend');
 var Promise = require('bluebird');
 
 var globCache = {};
@@ -18,7 +19,7 @@ function _resolvePrefix(pattern, prefixes) {
             prefixed = [prefixed];
         }
         return prefixed.map(function(prefixPath) {
-            return path.join(prefixPath, relPath);
+            return prefixPath+relPath;
         });
     }
     return pattern;
@@ -33,6 +34,7 @@ var prefix = module.exports.prefix = function(patterns, prefixes) {
     } else {
         prefixed = [].concat(_resolvePrefix(patterns, prefixes));
     }
+    
     return prefixed;
 };
 
@@ -47,6 +49,7 @@ module.exports.expand = function (pattern, options) {
         } else {
             var prefixed = prefix(pattern, options.prefixes);
             var paths = prefixed.length > 1 ? '{'+prefixed.join(',')+'}' : prefixed[0];
+            console.log('resolving glob', paths);
             glob(paths, options.glob, function(err, files) {
                 if (err) {
                     reject(err);
