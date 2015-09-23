@@ -11,7 +11,7 @@ var magic = require('magic-paths');
 
 var options = {
     prefixes: {
-        rel_fixture: 'test/fixtures'
+        rel_fixture: 'test/fixtures/'
     }
 };
 
@@ -25,3 +25,5 @@ magic.expand('rel_fixture:*.html', options).then(function(files) {
     // ...
 }).catch(function(err){})
 ```
+
+**Note:** - the trailing slash for directory prefixes is important. Prefixes may not necessarily be full directory paths so it's not possible to automagically resolve them as such.

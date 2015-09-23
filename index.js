@@ -1,7 +1,6 @@
 'use strict';
 var glob = require('glob');
 var path = require('path');
-var merge = require('deep-extend');
 var Promise = require('bluebird');
 
 var globCache = {};
@@ -10,7 +9,7 @@ function makeExpr(prefixes) {
     return new RegExp('^\\s*('+Object.keys(prefixes).join('|')+'):([^\\s]+)\\s*', 'i');
 }
 
-function _resolvePrefix(pattern, prefixes) {
+function resolvePrefix(pattern, prefixes) {
     var matches = pattern.match(makeExpr(prefixes));
     if (matches) {
         var prefixed = prefixes[matches[1]];
@@ -29,18 +28,22 @@ var prefix = module.exports.prefix = function(patterns, prefixes) {
     var prefixed;
     if (Array.isArray(patterns)) {
         prefixed = patterns.map(function(pattern) {
-            return _resolvePrefix(pattern, prefixes);
+            return resolvePrefix(pattern, prefixes);
         });
     } else {
-        prefixed = [].concat(_resolvePrefix(patterns, prefixes));
+        prefixed = [].concat(resolvePrefix(patterns, prefixes));
     }
-    
     return prefixed;
 };
 
 module.exports.expand = function (pattern, options) {
     var args = Array.prototype.slice.call(arguments);
     var cb = args.length === 3 ? args.pop() : function(){};
+    if (!options.prefixes) {
+        options.prefixes = {
+            cwd: process.cwd()
+        };
+    }
     return new Promise(function(resolve, reject) {
         // Glob cache is required here - resolving this each time is expensive
         if (globCache.hasOwnProperty(pattern)) {
@@ -66,3 +69,6 @@ module.exports.expand = function (pattern, options) {
         }
     });
 };
+
+// Expose for testing and potential cache clearing
+module.exports.globCache = globCache;
